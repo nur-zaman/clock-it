@@ -12,11 +12,9 @@ import { FitnessWidget } from './widgets/FitnessWidget';
 import { ListDemoWidget } from './widgets/ListDemoWidget';
 import { ResizableMusicWidget } from './widgets/ResizableMusicWidget';
 import { RotatedWidget } from './widgets/RotatedWidget';
-import { OfficeTimeWidget } from './widgets/OfficeTimeWidget';
 import { ShopifyWidget } from './widgets/ShopifyWidget';
 
 const nameToWidget = {
-  OfficeTime: OfficeTimeWidget,
   Fitness: FitnessWidget,
   Resizable: ResizableMusicWidget,
   Rotated: RotatedWidget,
@@ -30,8 +28,6 @@ const nameToWidget = {
 
 const COUNTER_STORAGE_KEY = 'CounterWidget:count';
 const CONFIGURABLE_WIDGET_STORAGE_KEY = 'ConfigurableWidget:config';
-const OFFICE_TIMER_STATE_KEY = 'OfficeTimeWidget:state';
-const OFFICE_TIMER_HISTORY_KEY = 'OfficeTimeWidget:history';
 
 export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
   console.log(props);
@@ -39,148 +35,6 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
   const Widget = nameToWidget[
     widgetInfo.widgetName as keyof typeof nameToWidget
   ] as any;
-
-  if (widgetInfo.widgetName === 'OfficeTime') {
-    const stateStr = await AsyncStorage.getItem(OFFICE_TIMER_STATE_KEY);
-    const state = JSON.parse(stateStr ?? '{}');
-
-    const historyStr = await AsyncStorage.getItem(OFFICE_TIMER_HISTORY_KEY);
-    const history = JSON.parse(historyStr ?? '[]');
-
-    const getYesterdayTotal = () => {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-      const yesterdaySessions = history.filter(
-        (session: any) => session.date === yesterdayStr
-      );
-
-      const totalMilliseconds = yesterdaySessions.reduce(
-        (total: number, session: any) => total + session.duration,
-        0
-      );
-
-      if (totalMilliseconds === 0) {
-        return '0h 0m';
-      }
-
-      const hours = Math.floor(totalMilliseconds / (1000 * 60 * 60));
-      const minutes = Math.floor(
-        (totalMilliseconds % (1000 * 60 * 60)) / (1000 * 60)
-      );
-
-      return `${hours}h ${minutes}m`;
-    };
-
-    const formatDuration = (milliseconds: number) => {
-      if (milliseconds < 0) milliseconds = 0;
-      const totalSeconds = Math.floor(milliseconds / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      return `${hours}h ${minutes}m`;
-    };
-
-    switch (props.widgetAction) {
-      case 'WIDGET_ADDED':
-      case 'WIDGET_UPDATE': {
-        const isTimerRunning = state.isTimerRunning ?? false;
-        const startTime = state.startTime ?? 0;
-        const timerValue = isTimerRunning
-          ? formatDuration(Date.now() - startTime)
-          : 'Not Started';
-
-        props.renderWidget(
-          <OfficeTimeWidget
-            yesterdayTotal={getYesterdayTotal()}
-            isTimerRunning={isTimerRunning}
-            timerValue={timerValue}
-          />
-        );
-        break;
-      }
-
-      case 'WIDGET_CLICK': {
-        if (props.clickAction === 'START') {
-          const newState = {
-            isTimerRunning: true,
-            startTime: Date.now(),
-          };
-          await AsyncStorage.setItem(
-            OFFICE_TIMER_STATE_KEY,
-            JSON.stringify(newState)
-          );
-
-          props.renderWidget(
-            <OfficeTimeWidget
-              yesterdayTotal={getYesterdayTotal()}
-              isTimerRunning={true}
-              timerValue="0h 0m"
-            />
-          );
-        } else if (props.clickAction === 'STOP') {
-          const newState = {
-            ...state,
-            isStopConfirmation: true,
-          };
-          await AsyncStorage.setItem(
-            OFFICE_TIMER_STATE_KEY,
-            JSON.stringify(newState)
-          );
-
-          props.renderWidget(
-            <OfficeTimeWidget
-              yesterdayTotal={getYesterdayTotal()}
-              isTimerRunning={true}
-              timerValue={formatDuration(Date.now() - state.startTime)}
-              isStopConfirmation={true}
-            />
-          );
-        } else if (props.clickAction === 'CONFIRM_STOP') {
-          if (!state.isTimerRunning) {
-            return;
-          }
-
-          const endTime = Date.now();
-          const startTime = state.startTime;
-          const duration = endTime - startTime;
-          const todayStr = new Date().toISOString().split('T')[0];
-
-          const newHistoryEntry = {
-            date: todayStr,
-            startTime,
-            endTime,
-            duration,
-          };
-
-          const newHistory = [...history, newHistoryEntry];
-          await AsyncStorage.setItem(
-            OFFICE_TIMER_HISTORY_KEY,
-            JSON.stringify(newHistory)
-          );
-
-          const newState = {
-            isTimerRunning: false,
-            startTime: 0,
-          };
-          await AsyncStorage.setItem(
-            OFFICE_TIMER_STATE_KEY,
-            JSON.stringify(newState)
-          );
-
-          props.renderWidget(
-            <OfficeTimeWidget
-              yesterdayTotal={getYesterdayTotal()}
-              isTimerRunning={false}
-              timerValue={formatDuration(duration)}
-            />
-          );
-        }
-        break;
-      }
-    }
-    return;
-  }
 
   if (widgetInfo.widgetName === 'DebugEvents') {
     let events = await writeAndGetEvents(
