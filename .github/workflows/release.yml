@@ -25,10 +25,10 @@ jobs:
           cache: 'yarn'
 
       - name: Install root dependencies
-        run: yarn install --immutable # Use --immutable for modern Yarn
+        run: yarn install --immutable
 
       - name: Install example dependencies
-        run: yarn --cwd example install --immutable # Use --immutable for modern Yarn
+        run: cd example && yarn install --immutable # Change directory before installing
 
       - name: Patch Gradle settings
         run: sed -i 's|../node_modules/@react-native/gradle-plugin|../../node_modules/@react-native/gradle-plugin|g' example/android/settings.gradle
@@ -42,8 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }} # Use the unique run number for the tag
-          release_name: Release ${{ github.run_number }} # Use the unique run number for the release name
+          tag_name: v${{ github.run_number }}
+          release_name: Release ${{ github.run_number }}
           draft: false
           prerelease: false
 
@@ -56,4 +56,3 @@ jobs:
           asset_path: ./example/android/app/build/outputs/apk/release/app-release.apk
           asset_name: app-release.apk
           asset_content_type: application/vnd.android.package-archive
-          
