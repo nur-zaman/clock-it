@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '11'
+          java-version: '17' # Update Java version to 17
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -28,7 +28,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Install example dependencies
-        run: cd example && yarn install --immutable # Change directory before installing
+        run: cd example && yarn install --immutable
 
       - name: Patch Gradle settings
         run: sed -i 's|../node_modules/@react-native/gradle-plugin|../../node_modules/@react-native/gradle-plugin|g' example/android/settings.gradle
