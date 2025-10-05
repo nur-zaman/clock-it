@@ -28,6 +28,7 @@ export type ExampleScreens = {
   SvgScreen: undefined;
   TextScreen: undefined;
   CounterScreen: undefined;
+  OfficeTimeScreen: undefined;
 };
 
 interface Item {
@@ -83,6 +84,10 @@ const items: Item[] = [
   {
     title: 'Text Demo',
     screen: 'TextScreen',
+  },
+  {
+    title: 'Office Time Tracker',
+    screen: 'OfficeTimeScreen',
   },
 ];
 

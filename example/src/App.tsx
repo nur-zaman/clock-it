@@ -16,6 +16,7 @@ import { ListDemoWidgetPreviewScreen } from './screens/widget-preview/ListDemoWi
 import { ResizableMusicWidgetPreviewScreen } from './screens/widget-preview/ResizableMusicWidgetPreviewScreen';
 import { RotatedWidgetPreviewScreen } from './screens/widget-preview/RotatedWidgetPreviewScreen';
 import { ShopifyWidgetPreviewScreen } from './screens/widget-preview/ShopifyWidgetPreviewScreen';
+import { OfficeTimeScreen } from './screens/OfficeTimeScreen';
 
 const Stack = createNativeStackNavigator<ExampleScreens>();
 
@@ -92,6 +93,11 @@ export function App() {
           name="DebugEventsWidgetPreviewScreen"
           component={DebugEventsWidgetPreviewScreen}
           options={{ title: 'Debug Widget Events' }}
+        />
+        <Stack.Screen
+          name="OfficeTimeScreen"
+          component={OfficeTimeScreen}
+          options={{ title: 'Office Time Tracker' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

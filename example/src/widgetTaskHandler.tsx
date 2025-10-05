@@ -111,11 +111,15 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
             JSON.stringify(newState)
           );
 
+          // Start the background service for live updates
+          // Note: In a real implementation, you'd call a native method here
+
           props.renderWidget(
             <OfficeTimeWidget
               yesterdayTotal={getYesterdayTotal()}
               isTimerRunning={true}
               timerValue="0h 0m"
+              isStopConfirmation={false}
             />
           );
         } else if (props.clickAction === 'STOP') {
@@ -173,6 +177,7 @@ export async function widgetTaskHandler(props: WidgetTaskHandlerProps) {
               yesterdayTotal={getYesterdayTotal()}
               isTimerRunning={false}
               timerValue={formatDuration(duration)}
+              isStopConfirmation={false}
             />
           );
         }
