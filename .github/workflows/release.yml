@@ -25,10 +25,10 @@ jobs:
           cache: 'yarn'
 
       - name: Install root dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable # Use --immutable for modern Yarn
 
       - name: Install example dependencies
-        run: yarn --cwd example install --frozen-lockfile
+        run: yarn --cwd example install --immutable # Use --immutable for modern Yarn
 
       - name: Patch Gradle settings
         run: sed -i 's|../node_modules/@react-native/gradle-plugin|../../node_modules/@react-native/gradle-plugin|g' example/android/settings.gradle
@@ -56,3 +56,4 @@ jobs:
           asset_path: ./example/android/app/build/outputs/apk/release/app-release.apk
           asset_name: app-release.apk
           asset_content_type: application/vnd.android.package-archive
+          
