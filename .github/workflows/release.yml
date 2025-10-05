@@ -1,8 +1,9 @@
-name: Release APK
+name: Release APK on Master Merge
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master # Trigger the workflow on pushes to the master branch
 
 jobs:
   build:
@@ -20,16 +21,20 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'yarn'
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: yarn install --frozen-lockfile
 
+      - name: Install example dependencies
+        run: yarn --cwd example install --frozen-lockfile
+
+      - name: Patch Gradle settings
+        run: sed -i 's|../node_modules/@react-native/gradle-plugin|../../node_modules/@react-native/gradle-plugin|g' example/android/settings.gradle
+
       - name: Build APK
-        run: |
-          cd example/android
-          ./gradlew assembleRelease
+        run: cd example/android && ./gradlew assembleRelease
 
       - name: Create Release
         id: create_release
@@ -37,8 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
+          tag_name: v${{ github.run_number }} # Use the unique run number for the tag
+          release_name: Release ${{ github.run_number }} # Use the unique run number for the release name
           draft: false
           prerelease: false
 
